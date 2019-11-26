@@ -1,11 +1,12 @@
-# This code is modified fron the HMP2 bitbucket repository 
+# Hena R. Ramay
+# This code is modified from the HMP2 bitbucket repository 
 #https://bitbucket.org/biobakery/hmp2_analysis/src/default/common/
 
-# It attempt to generate figure 2c in the
+# It attempts to generate figure 2c in the
 # "Multi-omics of the gut microbial ecosystem 
 # in inflammatory bowel diseases",(Lloyd-Price et al.)
-#https://doi.org/10.1038/s41586-019-1237-9
-#and calculates the dysbiotic score 
+# https://doi.org/10.1038/s41586-019-1237-9
+# and calculates the dysbiosis score 
 # for patients present in the metagenomics dataset.
 
 
@@ -25,13 +26,13 @@ pcl.normalize <- function(dat, s = rowSums(dat, na.rm = T)) {
 }
 
 
-#Read in the metadata file
+# Read in the metadata file
 # File taken from 
-#https://ibdmdb.org/tunnel/products/HMP2/Metadata/hmp2_metadata.csv
+# https://ibdmdb.org/tunnel/products/HMP2/Metadata/hmp2_metadata.csv
 
 metadata <- read.csv("data/hmp2_metadata.csv", stringsAsFactors = F)
 
-#Read in the taxonoimc profiles from the metagenomics file
+# Read in the taxonoimc profiles from the metagenomics file
 
 min_reads = 1000000
 
@@ -105,6 +106,6 @@ ggsave("results/Fig2c_hmp2_ibd.png",plot = fig2c)
 table(metag$active)
 
 write_csv(
-  path =  "results/dysbiotic_Score.csv",x=metag[,c("Participant.ID","activity_index","active")],
+  path =  "results/dysbiosis_Score.csv",x=metag[,c("Participant.ID","activity_index","active")],
   col_names = T)
 
