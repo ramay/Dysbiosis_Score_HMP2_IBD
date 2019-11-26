@@ -19,4 +19,5 @@ Steps needed to generate this score (taken from the paper's description of the d
 
 Here is a plot similar to Fig 2c generated using the code in IBD_HMP2_dysbiosis_score.R
 
-![dysbiosis](results/Fig2c_hmp2_ibd.png"Dysbosis score_density plot")
+
+![dysbiosis](results/Fig2c_hmp2_ibd.png "Dysbosis score_density plot")
