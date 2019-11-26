@@ -1,4 +1,4 @@
-Participant.ID,activity_index,active
+Participant.ID,dysbiosis_score,dysbiotic
 C3003,0.7613001834268064,FALSE
 C3006,0.6329523262532256,FALSE
 C3002,0.912606413860137,TRUE

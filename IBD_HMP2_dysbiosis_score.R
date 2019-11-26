@@ -73,7 +73,7 @@ temp <-
 dist<-as.matrix(vegdist(x = temp, method = "bray")) 
 
 # Calculate the activity index
-metag$activity_index <- sapply(seq_along(ref_set), function(i) {
+metag$dysbiosis_score <- sapply(seq_along(ref_set), function(i) {
   print(i)
   median(dist[i, ref_set &
                 (metag$Participant.ID != metag$Participant.ID[i])])
@@ -81,17 +81,17 @@ metag$activity_index <- sapply(seq_along(ref_set), function(i) {
 
 
 disease_activity_threshold <-
-  quantile(metag$activity_index[metag$diagnosis == "nonIBD"], 0.9)
+  quantile(metag$dysbiosis_score[metag$diagnosis == "nonIBD"], 0.9)
 eubiosis_lower_threshold <-
-  quantile(metag$activity_index[metag$diagnosis == "nonIBD"], 0.1)
+  quantile(metag$dysbiosis_score[metag$diagnosis == "nonIBD"], 0.1)
 
-metag$active <- metag$activity_index >= disease_activity_threshold
+metag$dysbiotic <- metag$dysbiosis_score >= disease_activity_threshold
 
 
 
 fig2c <- ggplot(metag,
                 aes(
-                  x = activity_index,
+                  x = dysbiosis_score,
                   group = diagnosis,
                   color = diagnosis,
                   fill = diagnosis
@@ -112,5 +112,5 @@ ggsave(
 table(metag$active)
 
 write_csv(path =  "results/dysbiosis_Score.csv",
-          x = metag[, c("Participant.ID", "activity_index", "active")],
+          x = metag[, c("Participant.ID", "dysbiosis_score", "dysbiotic")],
           col_names = T)
