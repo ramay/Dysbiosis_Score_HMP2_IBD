@@ -2,11 +2,11 @@
 # This code is modified from the HMP2 bitbucket repository 
 #https://bitbucket.org/biobakery/hmp2_analysis/src/default/common/
 
-# It attempts to generate figure 2c in the
+# It attempts calculates the dysbiosis score from 
 # "Multi-omics of the gut microbial ecosystem 
 # in inflammatory bowel diseases",(Lloyd-Price et al.)
 # https://doi.org/10.1038/s41586-019-1237-9
-# and calculates the dysbiosis score 
+# and generate fig 2C
 # for patients present in the metagenomics dataset.
 
 
@@ -89,23 +89,28 @@ metag$active <- metag$activity_index >= disease_activity_threshold
 
 
 
-fig2c<-ggplot(metag,
-       aes(
-         x = activity_index,
-         group = diagnosis,
-         color = diagnosis,
-         fill = diagnosis
-       )) +
+fig2c <- ggplot(metag,
+                aes(
+                  x = activity_index,
+                  group = diagnosis,
+                  color = diagnosis,
+                  fill = diagnosis
+                )) +
   geom_density() + scale_fill_manual(values = alpha(c("red", "blue", "yellow"), .3)) +
   scale_color_manual(values = alpha(c("red", "blue", "yellow"), .3)) +
-  geom_vline(xintercept = disease_activity_threshold)
+  geom_vline(xintercept = disease_activity_threshold) +
+  xlab("Dysbiosis Score")
 
-ggsave("results/Fig2c_hmp2_ibd.png",plot = fig2c)
+ggsave(
+  "results/Fig2c_hmp2_ibd.png",
+  plot = fig2c,
+  width = 9,
+  height = 5
+)
 
 
 table(metag$active)
 
-write_csv(
-  path =  "results/dysbiosis_Score.csv",x=metag[,c("Participant.ID","activity_index","active")],
-  col_names = T)
-
+write_csv(path =  "results/dysbiosis_Score.csv",
+          x = metag[, c("Participant.ID", "activity_index", "active")],
+          col_names = T)
