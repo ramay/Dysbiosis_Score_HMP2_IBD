@@ -1,0 +1,110 @@
+# This code is modified fron the HMP2 bitbucket repository 
+#https://bitbucket.org/biobakery/hmp2_analysis/src/default/common/
+
+# It attempt to generate figure 2c in the
+# "Multi-omics of the gut microbial ecosystem 
+# in inflammatory bowel diseases",(Lloyd-Price et al.)
+#https://doi.org/10.1038/s41586-019-1237-9
+#and calculates the dysbiotic score 
+# for patients present in the metagenomics dataset.
+
+
+
+library(tidyverse)
+library(ggplot2)
+
+# Taken from
+# https://bitbucket.org/biobakery/hmp2_analysis/src/default/common/pcl_utils.r
+
+pcl.normalize <- function(dat, s = rowSums(dat, na.rm = T)) {
+  # Normalize samples to sum to 1
+  s[s == 0] <- 1
+  #if (dat$nf >= 1)
+  dat <- dat / s
+  return (dat)
+}
+
+
+#Read in the metadata file
+# File taken from 
+#https://ibdmdb.org/tunnel/products/HMP2/Metadata/hmp2_metadata.csv
+
+metadata <- read.csv("data/hmp2_metadata.csv", stringsAsFactors = F)
+
+#Read in the taxonoimc profiles from the metagenomics file
+
+min_reads = 1000000
+
+# Reads in the metagenomics taxonomic_profiles file taken from
+# (https://ibdmdb.org/tunnel/products/HMP2_Pilot/WGS/1644/taxonomic_profiles.tsv.gz)
+# Joins metadata file to this data and finds data_type == metagenomics based on the External.IDs
+# It also keeps only samples with > 1 M reads.
+
+metag <-
+  as.data.frame(t(
+    read.csv(
+      "data/taxonomic_profiles.tsv",
+      sep = "\t",
+      row.names = 1,
+      stringsAsFactors = F
+    )
+  ))  %>%
+  tibble::rownames_to_column(var = "External.ID") %>%
+  left_join(by = "External.ID", x = ., y = metadata) %>%
+  filter(., data_type == "metagenomics") %>%  filter(reads_filtered >= min_reads) %>%
+  select(-External.ID)
+
+
+# Reference nonIBD set with samples only from  > 20th week
+ref_set <- (metag$diagnosis == "nonIBD") & (metag$week_num >= 20)
+
+# Taken and modified from pcl.only code in
+# https://bitbucket.org/biobakery/hmp2_analysis/src/default/common/pcl_utils.r
+
+temp <-
+  metag[, grepl(sprintf("(^|\\|)%s__[^\\|]+$", 's'), colnames(metag))] %>% pcl.normalize(.)
+
+
+# Modified from
+# https://bitbucket.org/biobakery/hmp2_analysis/src/default/common/disease_activity.r
+
+# calculate bray-curtis dissimilarity
+dist<-as.matrix(vegdist(x = temp, method = "bray")) 
+
+# Calculate the activity index
+metag$activity_index <- sapply(seq_along(ref_set), function(i) {
+  print(i)
+  median(dist[i, ref_set &
+                (metag$Participant.ID != metag$Participant.ID[i])])
+})
+
+
+disease_activity_threshold <-
+  quantile(metag$activity_index[metag$diagnosis == "nonIBD"], 0.9)
+eubiosis_lower_threshold <-
+  quantile(metag$activity_index[metag$diagnosis == "nonIBD"], 0.1)
+
+metag$active <- metag$activity_index >= disease_activity_threshold
+
+
+
+fig2c<-ggplot(metag,
+       aes(
+         x = activity_index,
+         group = diagnosis,
+         color = diagnosis,
+         fill = diagnosis
+       )) +
+  geom_density() + scale_fill_manual(values = alpha(c("red", "blue", "yellow"), .3)) +
+  scale_color_manual(values = alpha(c("red", "blue", "yellow"), .3)) +
+  geom_vline(xintercept = disease_activity_threshold)
+
+ggsave("results/Fig2c_hmp2_ibd.png",plot = fig2c)
+
+
+table(metag$active)
+
+write_csv(
+  path =  "results/dysbiotic_Score.csv",x=metag[,c("Participant.ID","activity_index","active")],
+  col_names = T)
+
