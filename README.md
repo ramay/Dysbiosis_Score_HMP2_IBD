@@ -1,6 +1,6 @@
 # dysbiosis_Score
 
- Generates dysbiosis score for HMP2 IBD metagenomics samples.
+Generates a file dysbiosis_Score.csv with participantIDs, dysbiosis_score and a logical called dysbiotic to show which samples are characterized as dysbiotic.
 
 This code is modified from the HMP2 bitbucket repository  https://bitbucket.org/biobakery/hmp2_analysis/src/default/common/
 
