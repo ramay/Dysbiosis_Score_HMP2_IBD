@@ -37,7 +37,7 @@ metadata <- read.csv("data/hmp2_metadata.csv", stringsAsFactors = F)
 min_reads = 1000000
 
 # Reads in the metagenomics taxonomic_profiles file taken from
-# (https://ibdmdb.org/tunnel/products/HMP2_Pilot/WGS/1644/taxonomic_profiles.tsv.gz)
+# (https://ibdmdb.org/tunnel/public/HMP2/WGS/1818/products/taxonomic_profiles.tsv.gz )
 # Joins metadata file to this data and finds data_type == metagenomics based on the External.IDs
 # It also keeps only samples with > 1 M reads.
 
